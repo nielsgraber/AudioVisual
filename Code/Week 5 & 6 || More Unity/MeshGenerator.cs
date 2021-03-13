@@ -13,18 +13,23 @@ public class MeshGenerator : MonoBehaviour
 
     public int xSize = 20;
     public int zSize = 20; 
+    public float scale = 20f;
+    public float offsetX = 5f;
+    public float offsetZ = 5f;
+    public float heightMultiplier = 2f;
 
     // Start is called before the first frame update
-    void Start()
+
+    void Update()
     {
         mesh = new Mesh();
         GetComponent<MeshFilter>().mesh = mesh;
-
-    CreateShape();
-    UpdateMesh();
-
+    
+        CreateShape();
+        UpdateMesh();
     }
 
+// Create a grid of squares consisting of two triangles per square as the base of the terrain. //
 void CreateShape()
 {
     vertices = new Vector3[(xSize + 1) * (zSize + 1)];
@@ -34,7 +39,7 @@ void CreateShape()
     {
         for (int x = 0; x <= xSize; x++)
         {
-            float y = Mathf.PerlinNoise(x * .3f, z * .3f) * 2f;
+            float y = CalculateHeight(x, z) * heightMultiplier;
             vertices[i] = new Vector3(x, y, z);
             i++;
         }
@@ -62,6 +67,15 @@ void CreateShape()
         }
         vert++;
     }
+}
+// Calculate perlin noise values that map to the height of the meshes triangles //
+float CalculateHeight (int x, int z)
+{
+    float xCoord = (float)x / xSize * scale + offsetX;
+    float zCoord = (float)z / zSize * scale + offsetZ;
+
+    float noise = Mathf.PerlinNoise(xCoord, zCoord);
+    return noise;
 }
 
 void UpdateMesh()
